@@ -355,6 +355,29 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      get_delivery_count_by_date: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          date: string
+          count: number
+        }[]
+      }
+      get_order_count_by_product: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          product_id: string
+          product_name: string
+          count: number
+        }[]
+      }
+      get_product_sales_count: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          product_id: string
+          product_name: string
+          total_sold: number
+        }[]
+      }
       match_documents: {
         Args: {
           query_embedding: string

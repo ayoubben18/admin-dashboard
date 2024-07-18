@@ -8,7 +8,7 @@ export default async function Home() {
   return (
     <PageWrapper>
       <HomeInformCards />
-      <div className="mt-6">
+      <div className="mt-6 w-full">
         <RecentOrdersTable orders={orders || []} />
       </div>
     </PageWrapper>

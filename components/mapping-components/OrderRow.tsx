@@ -1,23 +1,17 @@
 "use client";
-import { Delivery, Orders } from "@/types/tablesTypes";
-import React, { useState } from "react";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "../ui/table";
-import { format } from "date-fns";
+import { updateDeliveryStatus } from "@/db/data/delivery-data";
+import { getDeliveryProducts } from "@/db/service/delivery-service";
+import { Delivery as DeliveryEnum } from "@/enums/delivery.enum";
+import { utilityState } from "@/lib/utility-state";
 import { cn } from "@/lib/utils";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "../ui/dropdown-menu";
-import { MoveHorizontalIcon } from "lucide-react";
+import { DeliveryOrders } from "@/types/DeliveryOrders";
+import { Delivery } from "@/types/tablesTypes";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { format } from "date-fns";
+import { ChevronDown, MoveHorizontalIcon } from "lucide-react";
+import { useState } from "react";
+import { toast } from "sonner";
+import TableSkeleton from "../TableSkeleton";
 import { Button } from "../ui/button";
 import {
   Dialog,
@@ -28,40 +22,84 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "../ui/dialog";
-import { getOrders } from "@/db/data/orders-data";
-import { createClient } from "@/utils/supabase/client";
-import { useMutation } from "@tanstack/react-query";
-import { toast } from "sonner";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "../ui/dropdown-menu";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "../ui/table";
+import { Badge } from "../ui/badge";
 
 type Props = {
   delivery: Delivery;
 };
 
+const deliveryStatus = [
+  {
+    status: DeliveryEnum.Placed,
+    name: "Placed",
+  },
+  {
+    status: DeliveryEnum.Shipping,
+    name: "Shipping",
+  },
+  {
+    status: DeliveryEnum.Received,
+    name: "Received",
+  },
+];
+
 const OrderRow = ({ delivery }: Props) => {
   const [open, setOpen] = useState(false);
-  const [orders, setOrders] = useState<Orders[]>([]);
+  const [orders, setOrders] = useState<DeliveryOrders[]>([]);
+
+  const queryClient = useQueryClient();
 
   const { mutate, isPending } = useMutation({
     mutationKey: ["getOrders"],
     mutationFn: async () => {
-      toast.promise(handleOpenDialog, {
-        loading: "Fetching orders...",
-        success: "Orders fetched successfully",
-        error: "An error occurred while fetching orders",
-        duration: 1000,
-      });
+      await handleOpenDialog();
     },
     onError: (error) => {
       toast.error("An error occurred while fetching orders");
     },
   });
 
+  const { mutate: update, isPending: isUpdating } = useMutation({
+    mutationKey: ["updateStatus"],
+    mutationFn: async ({ status }: { status: string }) => {
+      toast.promise(updateDeliveryStatus(delivery.id, status), {
+        loading: "Updating status...",
+        success: "Status updated",
+        error: "An error occurred while updating status",
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["orders"],
+      });
+    },
+  });
+
+  const setStatus = async (status: string) => {
+    await update({ status });
+  };
+
   const handleOpenDialog = async () => {
     setOpen(true);
-    const fetchedOrders = await getOrders(delivery.id);
+    const fetchedOrders = await getDeliveryProducts(delivery.id);
     if (!fetchedOrders) {
       setOrders([]);
     } else {
+      //@ts-ignore
       setOrders(fetchedOrders);
     }
   };
@@ -74,19 +112,15 @@ const OrderRow = ({ delivery }: Props) => {
       </TableCell>
       <TableCell>
         {" "}
-        <div
+        <Badge
+          //@ts-ignore
+          variant={delivery.state}
           className={cn(
-            "inline-flex items-center gap-2 rounded-full bg-green-100 px-3 py-1 text-sm font-medium text-green-800 dark:bg-green-900 dark:text-green-300",
-            delivery.state === "shipping" &&
-              "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300",
-            delivery.state === "received" &&
-              "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300",
-            delivery.state === "placed" &&
-              "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300"
+            "inline-flex items-center gap-2 rounded-full px-3 py-1 text-sm font-medium "
           )}
         >
           {delivery.state}
-        </div>
+        </Badge>
       </TableCell>
       <TableCell>$ {delivery.total_price}</TableCell>
       <TableCell className="text-right">
@@ -106,14 +140,43 @@ const OrderRow = ({ delivery }: Props) => {
       </TableCell>
       <Dialog open={open}>
         <DialogTrigger></DialogTrigger>
-        <DialogContent className="sm:max-w-[425px]">
+        <DialogContent>
           <DialogHeader>
-            <DialogTitle>
-              {format(new Date(delivery.created_at), "MM-dd-yyyy")}
-            </DialogTitle>
-            <DialogDescription className="text-lg">
-              {delivery.name} - ${delivery.total_price}
-            </DialogDescription>
+            <div className=" flex justify-between">
+              <div className=" flex flex-col gap-3">
+                <DialogTitle>
+                  {format(new Date(delivery.created_at), "MM-dd-yyyy")}
+                </DialogTitle>
+                <DialogDescription className="text-lg">
+                  {delivery.name} - ${delivery.total_price}
+                </DialogDescription>
+                <div className=" text-lg">
+                  {delivery.address} - {delivery.email} -{" "}
+                  {delivery.phone_number}
+                </div>
+              </div>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    //@ts-ignore
+                    variant={delivery.state}
+                    className={cn(" flex gap-2 ")}
+                  >
+                    {delivery.state} <ChevronDown className="h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  {deliveryStatus.map((status, index) => (
+                    <DropdownMenuItem
+                      key={index}
+                      onClick={() => setStatus(status.status)}
+                    >
+                      {status.name}
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
           </DialogHeader>
           <Table>
             <TableHeader>
@@ -122,26 +185,26 @@ const OrderRow = ({ delivery }: Props) => {
                 <TableHead>quantity</TableHead>
                 <TableHead>color</TableHead>
                 <TableHead>size</TableHead>
-                <TableHead className="text-right">quantity</TableHead>
+                <TableHead className="text-right">Price</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {isPending
-                ? // Render a sekeleton from shadcn 3 rows
-                  [1, 2, 3].map((index) => (
-                    <TableRow key={index}>
-                      <TableCell className="w-1/4 h-4 bg-gray-200 animate-pulse"></TableCell>
-                      <TableCell className="w-1/4 h-4 bg-gray-200 animate-pulse"></TableCell>
-                      <TableCell className="w-1/4 h-4 bg-gray-200 animate-pulse"></TableCell>
-                    </TableRow>
-                  ))
-                : orders.map((order) => (
-                    <TableRow key={order.id}>
-                      <TableCell>{order.quantity}</TableCell>
-                      <TableCell>{order.quantity}</TableCell>
-                      <TableCell>{order.price}</TableCell>
-                    </TableRow>
-                  ))}
+              {isPending ? (
+                // Render a sekeleton from shadcn 3 rows
+                <TableSkeleton rowsPerPage={3} />
+              ) : (
+                orders.map((order, index) => (
+                  <TableRow key={index}>
+                    <TableCell>{order.name}</TableCell>
+                    <TableCell>{order.quantity}</TableCell>
+                    <TableCell>{order.color}</TableCell>
+                    <TableCell>{order.size}</TableCell>
+                    <TableCell className="text-right">
+                      $ {order.price}
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
             </TableBody>
           </Table>
           <DialogFooter>

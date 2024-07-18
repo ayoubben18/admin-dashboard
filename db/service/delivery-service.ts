@@ -4,6 +4,7 @@ import { createClient } from "@/utils/supabase/server";
 import { getDeliveries } from "../data/delivery-data";
 import { logger } from "@/lib/logger";
 import { getOrders } from "../data/orders-data";
+import { getOrdersProducts } from "./orders-service";
 
 const getPaginatedDeliveries = async (page: number, elementPerPage: number) => {
   try {
@@ -30,6 +31,10 @@ const getDeliveryProducts = async (deliveryId: string) => {
   if (!orders || orders.length === 0) {
     return [];
   }
+
+  const deliveryOrders = await getOrdersProducts(supabase, orders);
+
+  return deliveryOrders;
 };
 
-export { getPaginatedDeliveries };
+export { getPaginatedDeliveries, getDeliveryProducts };

@@ -20,7 +20,7 @@ const getProducts = async (supabase: TypedSupabaseCLient, ids: string[]) => {
     .select("*")
     .in("id", ids);
 
-  return handleStatus(error, status, data) as Products[] | null;
+  return handleStatus(error, status, data) as Products[];
 };
 
 export { getProduct, getProducts };

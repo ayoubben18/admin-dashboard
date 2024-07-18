@@ -1,5 +1,6 @@
 "use server";
 
+import { Delivery as DeliveryEnum } from "@/enums/delivery.enum";
 import { handleStatus } from "@/lib/handleStatus";
 import { TypedSupabaseCLient } from "@/types/SupabaseClient";
 import { Delivery } from "@/types/tablesTypes";
@@ -31,4 +32,27 @@ const getDeliveries = async (
   return handleStatus(error, status, data) as Delivery[];
 };
 
-export { getRecentOrders, getDeliveries };
+const updateDeliveryStatus = async (id: string, status: string) => {
+  // we should update the time too
+  let shippingDate = null;
+  let receivedDate = null;
+  if (status === DeliveryEnum.Shipping) {
+    shippingDate = new Date();
+  } else if (status === DeliveryEnum.Received) {
+    receivedDate = new Date();
+  }
+  const supabase = createClient();
+
+  const {
+    data,
+    status: statusResponse,
+    error,
+  } = await supabase
+    .from("delivery")
+    .update({ state: status, shipping: shippingDate, delivered: receivedDate })
+    .eq("id", id);
+
+  return handleStatus(error, statusResponse, data);
+};
+
+export { getRecentOrders, getDeliveries, updateDeliveryStatus };
