@@ -3,4 +3,5 @@ export enum ECOMErrorEnum {
   UserNotFound = "User not found",
   InternalServerError = "Internal server error",
   Unauthorized = "Unauthorized",
+  ValidationError = "Validation Error",
 }

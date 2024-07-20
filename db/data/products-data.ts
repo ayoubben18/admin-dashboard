@@ -23,4 +23,20 @@ const getProducts = async (supabase: TypedSupabaseCLient, ids: string[]) => {
   return handleStatus(error, status, data) as Products[];
 };
 
-export { getProduct, getProducts };
+const insertProduct = async (
+  supabase: TypedSupabaseCLient,
+  product: Omit<
+    Products,
+    "id" | "embeddings" | "rating_count" | "general_rating"
+  >
+) => {
+  const { data, error, status } = await supabase
+    .from("products")
+    .insert([product])
+    .select("*")
+    .single();
+
+  return handleStatus(error, status, data) as Products;
+};
+
+export { getProduct, getProducts, insertProduct };
