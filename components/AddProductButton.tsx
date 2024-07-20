@@ -9,12 +9,16 @@ import {
   DialogTrigger,
 } from "./ui/dialog";
 import ProductForm from "./smaller-components/ProductForm";
+import { PlusIcon } from "lucide-react";
 
 const AddProductButton = () => {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button variant={"secondary"}>Add Product</Button>
+        <Button variant={"secondary"} className=" flex items-center gap-2">
+          <PlusIcon className=" w-3 h-3" />
+          Add Product
+        </Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>

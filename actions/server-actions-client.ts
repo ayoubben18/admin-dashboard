@@ -15,6 +15,8 @@ const serverActionClient = createSafeActionClient({
       };
     }
     if (error instanceof ActionValidationError) {
+      console.log("Validation error", error);
+
       return {
         details: ECOMErrorEnum.ValidationError,
         message: error.message,

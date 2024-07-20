@@ -1,10 +1,18 @@
-import { productFormSchema } from "@/components/smaller-components/ProductForm";
 import { z } from "zod";
 
+export const productFormSchema = z.object({
+  name: z.string().min(3),
+  description: z.string().min(10),
+  price: z.number().positive(),
+  stock: z.number().positive(),
+});
+
 export const productSchema = z.object({
-  productFormSchema,
-  colors: z.array(z.string()),
-  sizes: z.array(z.string()),
-  numberOfImages: z.number().min(1).max(5),
-  images: z.array(z.instanceof(FileList)),
+  name: z.string().min(3),
+  description: z.string().min(10),
+  price: z.number().positive(),
+  stock: z.number().positive(),
+  colors: z.array(z.string()).optional(),
+  sizes: z.array(z.string()).optional(),
+  number_of_images: z.number().min(1).max(5),
 });

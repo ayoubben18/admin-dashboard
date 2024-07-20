@@ -1,5 +1,3 @@
-"use server";
-
 import { ECOMErrorEnum } from "@/enums/EcomEnum";
 import { ECOMError } from "@/lib/ecommerce-error";
 import { TypedSupabaseCLient } from "@/types/SupabaseClient";
@@ -17,6 +15,8 @@ const uploadImage = async (
     });
 
   if (error) {
+    console.log(error.message);
+
     throw new ECOMError(
       "Failed to upload image",
       ECOMErrorEnum.DatabaseError,

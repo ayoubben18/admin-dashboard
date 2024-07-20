@@ -239,18 +239,21 @@ export type Database = {
       products_images: {
         Row: {
           created_at: string
+          full_path: string
           id: string
           object_id: string
           product_id: string
         }
         Insert: {
           created_at?: string
+          full_path: string
           id?: string
           object_id: string
           product_id: string
         }
         Update: {
           created_at?: string
+          full_path?: string
           id?: string
           object_id?: string
           product_id?: string

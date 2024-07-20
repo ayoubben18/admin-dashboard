@@ -9,7 +9,6 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { createProduct } from "@/db/service/product-service";
 import { Pairs } from "@/types/Pairs";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
@@ -21,6 +20,8 @@ import { FileUploader } from "../file-uploader";
 import { Textarea } from "../ui/textarea";
 import { MultipleInputs } from "./MultipleInputs";
 import useImagesStore from "@/stores/imagesStore";
+import { productFormSchema, productSchema } from "@/schemas/productSchema";
+import { createProduct } from "@/db/service/product-client-service";
 
 const colorArray = [
   { value: "red", label: "Red" },
@@ -61,22 +62,26 @@ const sizesArray = [
   { value: "xxxl", label: "XXXL" },
 ] satisfies Pairs[];
 
-export const productFormSchema = z.object({
-  name: z.string().min(3),
-  description: z.string().min(10),
-  price: z.number().positive(),
-  stock: z.number().positive(),
-});
-
 const ProductForm = () => {
   const [colors, setColors] = useState<Pairs[]>([]);
   const [sizes, setSizes] = useState<Pairs[]>([]);
   const { images } = useImagesStore();
   const { isPending, mutate } = useMutation({
     mutationKey: ["createProduct"],
-    mutationFn: createProduct,
+    mutationFn: async (values: z.infer<typeof productFormSchema>) => {
+      const product = {
+        ...values,
+        colors: colors.map((color) => color.value) || null,
+        sizes: sizes.map((size) => size.value) || null,
+        number_of_images: images?.length || 0,
+      };
+
+      // parse the prooduct using the productSchema schema
+      const parsedProduct = productSchema.parse(product);
+      await createProduct(parsedProduct, images || []);
+    },
     onError: (error) => {
-      console.log(error);
+      console.log(error.message);
 
       toast.error("Error creating product", {
         duration: 1500,
@@ -96,30 +101,11 @@ const ProductForm = () => {
     },
   });
 
-  async function onSubmit(values: z.infer<typeof productFormSchema>) {
-    // Do something with the form values.
-    // ✅ This will be type-safe and validated.
-
-    await mutate({
-      ...values,
-      colors: colors.map((color) => color.value),
-      sizes: sizes.map((size) => size.value),
-      images: images,
-    });
-
-    console.log({
-      ...values,
-      colors: colors.map((color) => color.value),
-      sizes: sizes.map((size) => size.value),
-      images: images,
-    });
-  }
-
   return (
     <div className=" w-full grid grid-cols-2 gap-4 ">
       <Form {...form}>
         <form
-          onSubmit={form.handleSubmit(onSubmit)}
+          onSubmit={form.handleSubmit((values) => mutate(values))}
           className="space-y-8 scroll-auto w-full "
         >
           <FormField

@@ -1,5 +1,4 @@
 "use server";
-
 import { handleStatus } from "@/lib/handleStatus";
 import { TypedSupabaseCLient } from "@/types/SupabaseClient";
 import { Products } from "@/types/tablesTypes";
@@ -23,20 +22,23 @@ const getProducts = async (supabase: TypedSupabaseCLient, ids: string[]) => {
   return handleStatus(error, status, data) as Products[];
 };
 
-const insertProduct = async (
-  supabase: TypedSupabaseCLient,
-  product: Omit<
-    Products,
-    "id" | "embeddings" | "rating_count" | "general_rating"
-  >
-) => {
+const getSortedProducts = async (supabase: TypedSupabaseCLient) => {
   const { data, error, status } = await supabase
     .from("products")
-    .insert([product])
     .select("*")
-    .single();
-
-  return handleStatus(error, status, data) as Products;
+    .order("general_rating", { ascending: false });
+  return handleStatus(error, status, data) as Products[];
 };
 
-export { getProduct, getProducts, insertProduct };
+const deleteProduct = async (
+  supabase: TypedSupabaseCLient,
+  productId: string
+) => {
+  const { error, status } = await supabase
+    .from("products")
+    .delete()
+    .eq("id", productId);
+
+  return handleStatus(error, status, null) as null;
+};
+export { getProduct, getProducts, getSortedProducts, deleteProduct };

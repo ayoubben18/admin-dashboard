@@ -7,7 +7,7 @@ export const handleStatus = <T>(
   status: number,
   data: T | T[]
 ) => {
-  if (status === 200 || status === 201 || status === 204) {
+  if (status % 200 < 100) {
     if (!data) {
       return;
     }

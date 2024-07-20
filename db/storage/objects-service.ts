@@ -1,14 +1,17 @@
-"use server";
-
-import { createClient } from "@/utils/supabase/server";
-import { uploadImage } from "./objects-data";
+import { createClient } from "@/utils/supabase/client";
+import { insertProductImagesService } from "../service/products-images";
+import { uploadImage } from "./objects-data-client";
 
 const uploadProductImages = async (productId: string, images: File[]) => {
   const supabase = createClient();
+  let imagesData = [];
 
   for (const image of images) {
-    await uploadImage(supabase, image, productId);
+    const data = await uploadImage(supabase, image, productId);
+    imagesData.push(data);
   }
+
+  await insertProductImagesService(productId, imagesData);
 };
 
 export { uploadProductImages };
