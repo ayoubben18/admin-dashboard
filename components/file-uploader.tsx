@@ -14,6 +14,7 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useControllableState } from "@/hooks/use-controllable-state";
+import useImagesStore from "@/stores/imagesStore";
 
 interface FileUploaderProps extends React.HTMLAttributes<HTMLDivElement> {
   /**
@@ -106,10 +107,10 @@ export function FileUploader(props: FileUploaderProps) {
     className,
     ...dropzoneProps
   } = props;
-
+  const { addImage } = useImagesStore();
   const [files, setFiles] = useControllableState({
     prop: valueProp,
-    onChange: onValueChange,
+    onChange: onUpload,
   });
 
   const onDrop = React.useCallback(
@@ -133,6 +134,7 @@ export function FileUploader(props: FileUploaderProps) {
       const updatedFiles = files ? [...files, ...newFiles] : newFiles;
 
       setFiles(updatedFiles);
+      addImage(updatedFiles);
 
       if (rejectedFiles.length > 0) {
         rejectedFiles.forEach(({ file }) => {
@@ -167,6 +169,7 @@ export function FileUploader(props: FileUploaderProps) {
     const newFiles = files.filter((_, i) => i !== index);
     setFiles(newFiles);
     onValueChange?.(newFiles);
+    addImage(newFiles);
   }
 
   // Revoke preview url when component unmounts

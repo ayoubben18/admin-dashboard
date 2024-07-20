@@ -1,9 +1,4 @@
 "use client";
-import React, { useState } from "react";
-import { number, z } from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-import { useMutation } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -14,12 +9,18 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { createProduct } from "@/db/service/product-service";
+import { Pairs } from "@/types/Pairs";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useMutation } from "@tanstack/react-query";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { toast } from "sonner";
+import { z } from "zod";
+import { FileUploader } from "../file-uploader";
 import { Textarea } from "../ui/textarea";
 import { MultipleInputs } from "./MultipleInputs";
-import { Pairs } from "@/types/Pairs";
-import { FileUploader } from "../file-uploader";
-import { createProduct } from "@/db/service/product-service";
-import { toast } from "sonner";
+import useImagesStore from "@/stores/imagesStore";
 
 const colorArray = [
   { value: "red", label: "Red" },
@@ -50,7 +51,6 @@ const colorArray = [
 ] satisfies Pairs[];
 
 const sizesArray = [
-  // Sizes with roamn notation
   { value: "xxs", label: "XXS" },
   { value: "xs", label: "XS" },
   { value: "s", label: "S" },
@@ -71,10 +71,13 @@ export const productFormSchema = z.object({
 const ProductForm = () => {
   const [colors, setColors] = useState<Pairs[]>([]);
   const [sizes, setSizes] = useState<Pairs[]>([]);
+  const { images } = useImagesStore();
   const { isPending, mutate } = useMutation({
     mutationKey: ["createProduct"],
     mutationFn: createProduct,
-    onError: () => {
+    onError: (error) => {
+      console.log(error);
+
       toast.error("Error creating product", {
         duration: 1500,
       });
@@ -93,112 +96,124 @@ const ProductForm = () => {
     },
   });
 
-  function onSubmit(values: z.infer<typeof productFormSchema>) {
+  async function onSubmit(values: z.infer<typeof productFormSchema>) {
     // Do something with the form values.
     // ✅ This will be type-safe and validated.
 
-    mutate({
+    await mutate({
       ...values,
       colors: colors.map((color) => color.value),
       sizes: sizes.map((size) => size.value),
-      images: [],
+      images: images,
+    });
+
+    console.log({
+      ...values,
+      colors: colors.map((color) => color.value),
+      sizes: sizes.map((size) => size.value),
+      images: images,
     });
   }
 
   return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-        <FormField
-          control={form.control}
-          name="name"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Name</FormLabel>
-              <FormControl>
-                <Input placeholder="Product name" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="description"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Description</FormLabel>
-              <FormControl>
-                <Textarea placeholder="Description" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="price"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Price</FormLabel>
-              <FormControl>
-                <Input
-                  type="number"
-                  placeholder="Price"
-                  {...field}
-                  onChange={(e) => field.onChange(Number(e.target.value))}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name="stock"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Stock</FormLabel>
-              <FormControl>
-                <Input
-                  type="number"
-                  placeholder="Stock"
-                  {...field}
-                  onChange={(e) =>
-                    field.onChange(Number.parseInt(e.target.value))
-                  }
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <div className=" flex flex-col gap-2">
-          <h1 className=" text-md">Colors</h1>
-          <MultipleInputs
-            pairs={colorArray}
-            label="colors"
-            selected={colors}
-            setSelected={setColors}
+    <div className=" w-full grid grid-cols-2 gap-4 ">
+      <Form {...form}>
+        <form
+          onSubmit={form.handleSubmit(onSubmit)}
+          className="space-y-8 scroll-auto w-full "
+        >
+          <FormField
+            control={form.control}
+            name="name"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Name</FormLabel>
+                <FormControl>
+                  <Input placeholder="Product name" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
           />
-        </div>
-        <div className=" flex flex-col gap-2">
-          <h1 className=" text-md">Sizes</h1>
-          <MultipleInputs
-            pairs={sizesArray}
-            label="sizes"
-            selected={sizes}
-            setSelected={setSizes}
+          <FormField
+            control={form.control}
+            name="description"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Description</FormLabel>
+                <FormControl>
+                  <Textarea placeholder="Description" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
           />
-        </div>
-        <FileUploader />
+          <FormField
+            control={form.control}
+            name="price"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Price</FormLabel>
+                <FormControl>
+                  <Input
+                    type="number"
+                    placeholder="Price"
+                    {...field}
+                    onChange={(e) => field.onChange(Number(e.target.value))}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
 
-        <Button type="submit" disabled={isPending}>
-          Submit
-        </Button>
-      </form>
-    </Form>
+          <FormField
+            control={form.control}
+            name="stock"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Stock</FormLabel>
+                <FormControl>
+                  <Input
+                    type="number"
+                    placeholder="Stock"
+                    {...field}
+                    onChange={(e) =>
+                      field.onChange(Number.parseInt(e.target.value))
+                    }
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <div className=" flex flex-col gap-2">
+            <h1 className=" text-md">Colors</h1>
+            <MultipleInputs
+              pairs={colorArray}
+              label="colors"
+              selected={colors}
+              setSelected={setColors}
+            />
+          </div>
+          <div className=" flex flex-col gap-2">
+            <h1 className=" text-md">Sizes</h1>
+            <MultipleInputs
+              pairs={sizesArray}
+              label="sizes"
+              selected={sizes}
+              setSelected={setSizes}
+            />
+          </div>
+
+          <Button type="submit" disabled={isPending}>
+            Submit
+          </Button>
+        </form>
+      </Form>
+      <FileUploader maxFiles={5} maxSize={1024 * 1024 * 4} multiple />
+    </div>
   );
 };
 

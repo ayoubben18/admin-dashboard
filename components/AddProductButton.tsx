@@ -8,7 +8,6 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "./ui/dialog";
-import { z } from "zod";
 import ProductForm from "./smaller-components/ProductForm";
 
 const AddProductButton = () => {
