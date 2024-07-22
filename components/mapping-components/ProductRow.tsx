@@ -1,5 +1,4 @@
 "use client";
-import { Products } from "@/types/tablesTypes";
 import { FilePenIcon, TrashIcon } from "lucide-react";
 import React from "react";
 import { Button } from "../ui/button";
@@ -9,6 +8,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { deleteProductService } from "@/db/service/product-service";
 import { toast } from "sonner";
 import { FullProductType } from "../smaller-components/ProductsSection";
+import Link from "next/link";
 
 type Props = {
   product: FullProductType;
@@ -35,38 +35,32 @@ const ProductRow = ({ product }: Props) => {
   return (
     <TableRow>
       <TableCell>
-        <Image
-          src={
-            product.imageUrl ||
-            "https://cdn.pixabay.com/photo/2024/06/30/13/41/iguana-8863156_640.jpg"
-          }
-          alt={product.name}
-          width={100}
-          height={100}
-          className="rounded-md"
-        />
+        <Link href={`/products/${product.id}`}>
+          <Image
+            src={product.imageUrl || "/not-available.jpg"}
+            alt={product.name}
+            width={100}
+            height={100}
+            priority
+            className="rounded-md"
+          />
+        </Link>
       </TableCell>
-      <TableCell className="font-medium">{product.name}</TableCell>
+      <TableCell className="font-semibold">{product.name}</TableCell>
       <TableCell>{product.description}</TableCell>
       <TableCell>${product.price.toFixed(2)}</TableCell>
       <TableCell>{product.stock}</TableCell>
       <TableCell>
-        <div className="flex items-center gap-2">
-          <Button variant="outline" size="icon">
-            <FilePenIcon className="w-4 h-4" />
-            <span className="sr-only">Edit</span>
-          </Button>
-          <Button
-            variant="outline"
-            size="icon"
-            className="text-red-500"
-            onClick={() => mutate(product.id)}
-            disabled={isPending}
-          >
-            <TrashIcon className="w-4 h-4" />
-            <span className="sr-only">Delete</span>
-          </Button>
-        </div>
+        <Button
+          variant="outline"
+          size="icon"
+          className="text-red-500"
+          onClick={() => mutate(product.id)}
+          disabled={isPending}
+        >
+          <TrashIcon className="w-4 h-4" />
+          <span className="sr-only">Delete</span>
+        </Button>
       </TableCell>
     </TableRow>
   );

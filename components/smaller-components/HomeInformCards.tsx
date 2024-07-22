@@ -9,12 +9,12 @@ const HomeInformCards = async () => {
       title: "Total Orders",
       description:
         "The total number of orders placed during the current period.",
-      amount: `$ ${salesAmount.toLocaleString()}`,
+      amount: `$ ${salesAmount?.toLocaleString() || 0}`,
     },
     {
       title: "Active Customers",
       description: "The number of active customers during the current period.",
-      amount: `${usersCount.toLocaleString()}`,
+      amount: `${usersCount?.toLocaleString() || 0}`,
     },
     {
       title: "Conversion Rate",

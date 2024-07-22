@@ -11,7 +11,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Pairs } from "@/types/Pairs";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -22,50 +22,13 @@ import { MultipleInputs } from "./MultipleInputs";
 import useImagesStore from "@/stores/imagesStore";
 import { productFormSchema, productSchema } from "@/schemas/productSchema";
 import { createProduct } from "@/db/service/product-client-service";
-
-const colorArray = [
-  { value: "red", label: "Red" },
-  { value: "blue", label: "Blue" },
-  { value: "green", label: "Green" },
-  { value: "yellow", label: "Yellow" },
-  { value: "purple", label: "Purple" },
-  { value: "orange", label: "Orange" },
-  { value: "pink", label: "Pink" },
-  { value: "brown", label: "Brown" },
-  { value: "gray", label: "Gray" },
-  { value: "black", label: "Black" },
-  { value: "white", label: "White" },
-  { value: "cyan", label: "Cyan" },
-  { value: "magenta", label: "Magenta" },
-  { value: "lime", label: "Lime" },
-  { value: "indigo", label: "Indigo" },
-  { value: "teal", label: "Teal" },
-  { value: "maroon", label: "Maroon" },
-  { value: "navy", label: "Navy" },
-  { value: "olive", label: "Olive" },
-  { value: "turquoise", label: "Turquoise" },
-  { value: "silver", label: "Silver" },
-  { value: "gold", label: "Gold" },
-  { value: "lavender", label: "Lavender" },
-  { value: "beige", label: "Beige" },
-  { value: "salmon", label: "Salmon" },
-] satisfies Pairs[];
-
-const sizesArray = [
-  { value: "xxs", label: "XXS" },
-  { value: "xs", label: "XS" },
-  { value: "s", label: "S" },
-  { value: "m", label: "M" },
-  { value: "l", label: "L" },
-  { value: "xl", label: "XL" },
-  { value: "xxl", label: "XXL" },
-  { value: "xxxl", label: "XXXL" },
-] satisfies Pairs[];
+import { colorArray, sizesArray } from "@/lib/pairs";
 
 const ProductForm = () => {
   const [colors, setColors] = useState<Pairs[]>([]);
   const [sizes, setSizes] = useState<Pairs[]>([]);
-  const { images } = useImagesStore();
+  const { images, addImage } = useImagesStore();
+  const queryClient = useQueryClient();
   const { isPending, mutate } = useMutation({
     mutationKey: ["createProduct"],
     mutationFn: async (values: z.infer<typeof productFormSchema>) => {
@@ -91,6 +54,13 @@ const ProductForm = () => {
       toast.success("Product added successfully", {
         duration: 1500,
       });
+      form.reset();
+      addImage([]);
+      setColors([]);
+      setSizes([]);
+      queryClient.invalidateQueries({
+        queryKey: ["products"],
+      });
     },
   });
   const form = useForm<z.infer<typeof productFormSchema>>({
@@ -98,6 +68,8 @@ const ProductForm = () => {
     defaultValues: {
       name: "",
       description: "",
+      price: NaN,
+      stock: NaN,
     },
   });
 
@@ -193,8 +165,12 @@ const ProductForm = () => {
             />
           </div>
 
-          <Button type="submit" disabled={isPending}>
-            Submit
+          <Button
+            type="submit"
+            className=" flex items-center gap-2"
+            disabled={isPending}
+          >
+            {isPending && <div className="loader" />} Submit
           </Button>
         </form>
       </Form>

@@ -13,8 +13,6 @@ const insertProductImage = async (
     .insert(images)
     .select("*");
 
-  console.log(data, status, error);
-
   return handleStatus(error, status, data) as ProductImages[];
 };
 
@@ -31,5 +29,16 @@ const getProductImages = async (
 
   return handleStatus(error, status, data) as ProductImages[];
 };
+const deleteProductImages = async (
+  supabase: TypedSupabaseCLient,
+  productId: string
+) => {
+  const { status, error } = await supabase
+    .from("products_images")
+    .delete()
+    .eq("product_id", productId);
 
-export { insertProductImage, getProductImages };
+  return handleStatus(error, status, null) as null;
+};
+
+export { insertProductImage, getProductImages, deleteProductImages };

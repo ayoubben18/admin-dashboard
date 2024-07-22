@@ -22,11 +22,16 @@ const getProducts = async (supabase: TypedSupabaseCLient, ids: string[]) => {
   return handleStatus(error, status, data) as Products[];
 };
 
-const getSortedProducts = async (supabase: TypedSupabaseCLient) => {
+const getSortedProducts = async (
+  supabase: TypedSupabaseCLient,
+  page: number,
+  elementsPerPage: number
+) => {
   const { data, error, status } = await supabase
     .from("products")
     .select("*")
-    .order("general_rating", { ascending: false });
+    .order("general_rating", { ascending: false })
+    .range((page - 1) * elementsPerPage, page * elementsPerPage - 1);
   return handleStatus(error, status, data) as Products[];
 };
 
@@ -41,4 +46,24 @@ const deleteProduct = async (
 
   return handleStatus(error, status, null) as null;
 };
-export { getProduct, getProducts, getSortedProducts, deleteProduct };
+
+const updateProduct = async (
+  supabase: TypedSupabaseCLient,
+  product: Partial<Products>
+) => {
+  const { error, status, data } = await supabase
+    .from("products")
+    .update(product)
+    .eq("id", product.id!)
+    .select("*")
+    .single();
+
+  return handleStatus(error, status, data) as Products | null;
+};
+export {
+  getProduct,
+  getProducts,
+  getSortedProducts,
+  deleteProduct,
+  updateProduct,
+};

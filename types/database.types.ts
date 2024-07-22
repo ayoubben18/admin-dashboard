@@ -239,31 +239,34 @@ export type Database = {
       products_images: {
         Row: {
           created_at: string
-          full_path: string
+          full_path: string | null
           id: string
-          object_id: string
-          product_id: string
+          image_url: string | null
+          object_id: string | null
+          product_id: string | null
         }
         Insert: {
           created_at?: string
-          full_path: string
+          full_path?: string | null
           id?: string
-          object_id: string
-          product_id: string
+          image_url?: string | null
+          object_id?: string | null
+          product_id?: string | null
         }
         Update: {
           created_at?: string
-          full_path?: string
+          full_path?: string | null
           id?: string
-          object_id?: string
-          product_id?: string
+          image_url?: string | null
+          object_id?: string | null
+          product_id?: string | null
         }
         Relationships: [
           {
             foreignKeyName: "products_images_object_id_fkey"
             columns: ["object_id"]
             isOneToOne: false
-            referencedRelation: "buckets"
+            referencedRelation: "objects"
             referencedColumns: ["id"]
           },
           {
@@ -371,6 +374,15 @@ export type Database = {
           product_id: string
           product_name: string
           count: number
+        }[]
+      }
+      get_product_sales_by_day: {
+        Args: {
+          product_uuid: string
+        }
+        Returns: {
+          sale_date: string
+          quantity_sold: number
         }[]
       }
       get_product_sales_count: {

@@ -5,3 +5,8 @@ export type ProductsCount = {
   product_name: string;
   total_sold: number;
 };
+
+export type ProductSalesByDay = {
+  sale_date: string;
+  quantity_sold: number;
+};
