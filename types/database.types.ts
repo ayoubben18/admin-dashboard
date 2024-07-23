@@ -320,6 +320,21 @@ export type Database = {
           },
         ]
       }
+      users: {
+        Row: {
+          email: string
+          id: string
+        }
+        Insert: {
+          email: string
+          id: string
+        }
+        Update: {
+          email?: string
+          id?: string
+        }
+        Relationships: []
+      }
       users_images: {
         Row: {
           created_at: string
@@ -361,6 +376,21 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      get_customer_conversion_rate: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          total_users: number
+          users_with_purchase: number
+          conversion_rate: number
+        }[]
+      }
+      get_daily_revenue: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          sale_date: string
+          daily_revenue: number
+        }[]
+      }
       get_delivery_count_by_date: {
         Args: Record<PropertyKey, never>
         Returns: {

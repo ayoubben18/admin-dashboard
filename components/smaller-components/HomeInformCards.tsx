@@ -2,7 +2,7 @@ import { getAllAgregs } from "@/db/aggregations/delivery-aggregartion-service";
 import SmallInfoCard from "../mapping-components/SmallInfoCard";
 
 const HomeInformCards = async () => {
-  const { salesAmount, usersCount } = await getAllAgregs();
+  const { salesAmount, usersCount, conventionRate } = await getAllAgregs();
 
   const mappingCards = [
     {
@@ -14,12 +14,12 @@ const HomeInformCards = async () => {
     {
       title: "Active Customers",
       description: "The number of active customers during the current period.",
-      amount: `${usersCount?.toLocaleString() || 0}`,
+      amount: `${usersCount || 0}`,
     },
     {
       title: "Conversion Rate",
       description: "The percentage of visitors who make a purchase.",
-      amount: "3.6",
+      amount: `% ${conventionRate || 0}`,
     },
   ];
 

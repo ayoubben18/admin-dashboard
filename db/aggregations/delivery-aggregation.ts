@@ -2,7 +2,7 @@
 
 import { handleStatus } from "@/lib/handleStatus";
 import { logger } from "@/lib/logger";
-import { TotalOrder } from "@/types/aggregations-types";
+import { TotalOrder, UsersAggregs } from "@/types/aggregations-types";
 import { TypedSupabaseCLient } from "@/types/SupabaseClient";
 import { createClient } from "@/utils/supabase/server";
 
@@ -29,4 +29,14 @@ const getGroupedOrders = async () => {
   return handleStatus(error, status, data) as TotalOrder[] | null;
 };
 
-export { getSalesAmount, getGroupedOrders };
+const getCustomerConversionRate = async (supabase: TypedSupabaseCLient) => {
+  const { data, error, status } = await supabase.rpc(
+    "get_customer_conversion_rate"
+  );
+
+  if (!data) return null;
+
+  return handleStatus(error, status, data[0]) as UsersAggregs | null;
+};
+
+export { getSalesAmount, getGroupedOrders, getCustomerConversionRate };

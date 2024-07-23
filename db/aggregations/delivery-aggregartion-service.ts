@@ -1,15 +1,20 @@
 "use server";
 
 import { createClient } from "@/utils/supabase/server";
-import { getSalesAmount } from "./delivery-aggregation";
+import {
+  getCustomerConversionRate,
+  getSalesAmount,
+} from "./delivery-aggregation";
 
 const getAllAgregs = async () => {
   const supabase = createClient();
   const salesAmount = await getSalesAmount(supabase);
+  const usersAgreggs = await getCustomerConversionRate(supabase);
 
   return {
     salesAmount,
-    usersCount: 0,
+    usersCount: usersAgreggs?.total_users,
+    conventionRate: usersAgreggs?.conversion_rate,
   };
 };
 
