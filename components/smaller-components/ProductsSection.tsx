@@ -44,11 +44,8 @@ const ProductsSection = () => {
         toast.info("No products left");
       }
       // check if the data already contained in the products
-      if (data[0].id === products[0]?.id) {
-        setProducts(data);
-      } else {
-        setProducts((prev) => [...prev, ...data]);
-      }
+
+      setProducts((prev) => [...prev, ...data]);
 
       return data;
     },

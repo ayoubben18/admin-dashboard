@@ -30,7 +30,7 @@ const RecentOrdersTable = ({ orders }: Props) => {
   const [ordersArr, setOrdersArr] = useState(orders);
   useEffect(() => {
     const channel = supabase
-      .channel("realtime comments")
+      .channel("realtime delivery")
       .on(
         "postgres_changes",
         { event: "INSERT", schema: "public", table: "delivery" },

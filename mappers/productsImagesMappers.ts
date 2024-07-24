@@ -7,7 +7,7 @@ export const productsImagesMappers = (
     path: string;
     fullPath: string;
   }[]
-): Omit<ProductImages, "id" | "created_at">[] => {
+): Omit<ProductImages, "id" | "created_at" | "image_url">[] => {
   return images.map((image) => ({
     object_id: image.id,
     product_id: productId,

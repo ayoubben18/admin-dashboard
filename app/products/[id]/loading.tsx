@@ -1,14 +1,13 @@
+import PageWrapper from "@/components/PageWrapper";
 import { Skeleton } from "@/components/ui/skeleton";
 
 export default function loading() {
   return (
-    <div className="grid md:grid-cols-2 gap-6 lg:gap-12 items-start max-w-6xl px-4 mx-auto py-6">
+    <PageWrapper className="grid md:grid-cols-2 gap-6 lg:gap-12 items-start max-w-6xl px-4 mx-auto py-6">
       <div className="grid gap-4 md:gap-10 items-start order-2 md:order-1">
-        <div className="flex items-start">
-          <div className="grid gap-4">
-            <Skeleton className="h-9 w-2/3" /> {/* Product name */}
-            <Skeleton className="h-20 w-full" /> {/* Product description */}
-          </div>
+        <div className="grid grid-cols-1 gap-4">
+          <Skeleton className="h-9 w-2/3" /> {/* Product name */}
+          <Skeleton className="h-20 w-full" /> {/* Product description */}
         </div>
 
         <div className="grid gap-4 md:gap-8">
@@ -34,7 +33,7 @@ export default function loading() {
       </div>
 
       <ImageSectionSkeleton />
-    </div>
+    </PageWrapper>
   );
 }
 

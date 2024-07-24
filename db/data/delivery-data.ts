@@ -55,4 +55,20 @@ const updateDeliveryStatus = async (id: string, status: string) => {
   return handleStatus(error, statusResponse, data);
 };
 
-export { getRecentOrders, getDeliveries, updateDeliveryStatus };
+const getUserDeliveries = async (
+  supabase: TypedSupabaseCLient,
+  userId: string
+) => {
+  const { data, error, status } = await supabase
+    .from("delivery")
+    .select("*")
+    .eq("user_id", userId);
+
+  return handleStatus(error, status, data) as Delivery[] | null;
+};
+export {
+  getRecentOrders,
+  getDeliveries,
+  updateDeliveryStatus,
+  getUserDeliveries,
+};

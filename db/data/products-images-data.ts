@@ -6,7 +6,7 @@ import { ProductImages } from "@/types/tablesTypes";
 
 const insertProductImage = async (
   supabase: TypedSupabaseCLient,
-  images: Omit<ProductImages, "id" | "created_at">[]
+  images: Omit<ProductImages, "id" | "created_at" | "image_url">[]
 ) => {
   const { data, status, error } = await supabase
     .from("products_images")

@@ -7,7 +7,7 @@ type Props = {
 
 const ProductsSkeleton = ({ rowsPerPage }: Props) => {
   return Array.from({ length: rowsPerPage }).map((_, index) => (
-    <TableRow>
+    <TableRow key={index}>
       <TableCell>
         <Skeleton className="h-[100px] w-[100px] rounded-md" />
       </TableCell>

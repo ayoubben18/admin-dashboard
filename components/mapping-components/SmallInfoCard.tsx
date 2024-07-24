@@ -18,7 +18,7 @@ const SmallInfoCard = ({ title, description, amount }: Props) => {
     <Card>
       <CardHeader>
         <CardTitle>{title}</CardTitle>
-        <CardDescription>{description} </CardDescription>
+        <CardDescription>{description}</CardDescription>
       </CardHeader>
       <CardContent>
         <div className="text-4xl font-bold">{amount}</div>

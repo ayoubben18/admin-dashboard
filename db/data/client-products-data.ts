@@ -1,30 +1,16 @@
 import { handleStatus } from "@/lib/handleStatus";
+import { productSchema } from "@/schemas/productSchema";
 import { TypedSupabaseCLient } from "@/types/SupabaseClient";
 import { Products } from "@/types/tablesTypes";
+import { z } from "zod";
 
 const insertProduct = async (
   supabase: TypedSupabaseCLient,
-  name: string,
-  description: string,
-  number_of_images: number,
-  sizes: string[] | null,
-  colors: string[] | null,
-  price: number,
-  stock: number
+  product: z.infer<typeof productSchema>
 ) => {
   const { data, error, status } = await supabase
     .from("products")
-    .insert([
-      {
-        name,
-        description,
-        number_of_images,
-        sizes,
-        colors,
-        price,
-        stock,
-      },
-    ])
+    .insert([product])
     .select("*")
     .single();
 
