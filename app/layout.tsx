@@ -30,7 +30,7 @@ export default function RootLayout({
             fontSans.variable
           )}
         >
-          <div className=" sm:hidden flex flex-col gap-4 items-center text-center justify-center text-white">
+          <div className=" sm:hidden flex flex-col gap-4 items-center text-center min-h-screen justify-center text-white">
             <h1 className=" font-extrabold text-2xl">
               This app is not supported on mobile devices
             </h1>
