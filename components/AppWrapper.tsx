@@ -7,7 +7,7 @@ interface Props {
 
 export default function AppWrapper({ children }: Props) {
   return (
-    <div className="flex min-h-screen w-full overflow-hidden">
+    <div className="hidden sm:flex min-h-screen w-full overflow-hidden">
       <SideBar />
       <div className="flex flex-1 flex-col">
         <NavBar />

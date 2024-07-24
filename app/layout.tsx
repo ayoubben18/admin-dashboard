@@ -26,12 +26,12 @@ export default function RootLayout({
       <html lang="en">
         <body
           className={cn(
-            "hidden sm:flex min-h-screen bg-background font-sans antialiased",
+            " min-h-screen bg-background font-sans antialiased",
             fontSans.variable
           )}
         >
-          <div className=" flex flex-col gap-4 items-center justify-center">
-            <h1 className=" sm:hidden flex font-extrabold text-2xl">
+          <div className=" sm:hidden flex flex-col gap-4 items-center text-center justify-center text-white">
+            <h1 className=" font-extrabold text-2xl">
               This app is not supported on mobile devices
             </h1>
             <p>
