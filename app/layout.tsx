@@ -26,11 +26,20 @@ export default function RootLayout({
       <html lang="en">
         <body
           className={cn(
-            "min-h-screen bg-background font-sans antialiased",
+            "hidden sm:flex min-h-screen bg-background font-sans antialiased",
             fontSans.variable
           )}
         >
-          {" "}
+          <div className=" flex flex-col gap-4 items-center justify-center">
+            <h1 className=" sm:hidden flex font-extrabold text-2xl">
+              This app is not supported on mobile devices
+            </h1>
+            <p>
+              This application contains a lot of tables and data representations
+              so you need to access it from a desktop view
+            </p>
+          </div>
+
           <Toaster
             richColors
             position="top-center"
