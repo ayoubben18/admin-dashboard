@@ -34,7 +34,7 @@ const ProductsSection = () => {
   const elemenetsPerPage = 10;
   const [page, setPage] = useState(1);
   const [products, setProducts] = useState<FullProductType[]>([]);
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, isFetching } = useQuery({
     queryKey: ["products", page],
     queryFn: () => getSortedProductsService(page, elemenetsPerPage),
     refetchOnWindowFocus: false,
@@ -64,8 +64,9 @@ const ProductsSection = () => {
           {products.map((product, index) => (
             <ProductRow product={product} key={index} />
           ))}
-          {products.length === 0 ||
-            (isLoading && <ProductsSkeleton rowsPerPage={elemenetsPerPage} />)}
+          {(isLoading || isFetching) && (
+            <ProductsSkeleton rowsPerPage={elemenetsPerPage} />
+          )}
         </TableBody>
       </Table>
       <div className="flex justify-center gap-3">
