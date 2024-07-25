@@ -2,7 +2,7 @@
 import { getSortedProductsService } from "@/db/service/product-service";
 import { useQuery } from "@tanstack/react-query";
 import { PlusCircleIcon } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import ProductRow from "../mapping-components/ProductRow";
 import { Button } from "../ui/button";
@@ -36,22 +36,16 @@ const ProductsSection = () => {
   const [products, setProducts] = useState<FullProductType[]>([]);
   const { data, isLoading } = useQuery({
     queryKey: ["products", page],
-    queryFn: async () => {
-      const data = await getSortedProductsService(page, elemenetsPerPage);
-      if (!data) return [];
-
-      if (data.length === 0) {
-        toast.info("No products left");
-      }
-      // check if the data already contained in the products
-
-      setProducts((prev) => [...prev, ...data]);
-
-      return data;
-    },
+    queryFn: () => getSortedProductsService(page, elemenetsPerPage),
     refetchOnWindowFocus: false,
     retry: true,
   });
+
+  useMemo(() => {
+    if (data) {
+      setProducts((prev) => [...prev, ...data]);
+    }
+  }, [data]);
 
   return (
     <div className="overflow-x-auto w-full flex flex-col gap-6">
@@ -70,9 +64,8 @@ const ProductsSection = () => {
           {products.map((product, index) => (
             <ProductRow product={product} key={index} />
           ))}
-          {products.length === 0 && isLoading && (
-            <ProductsSkeleton rowsPerPage={elemenetsPerPage} />
-          )}
+          {products.length === 0 ||
+            (isLoading && <ProductsSkeleton rowsPerPage={elemenetsPerPage} />)}
         </TableBody>
       </Table>
       <div className="flex justify-center gap-3">

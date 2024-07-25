@@ -13,4 +13,14 @@ const getAllUsers = async (supabase: TypedSupabaseCLient) => {
   return handleStatus(error, status, data) as Users[] | null;
 };
 
-export { getAllUsers };
+const getUser = async (supabase: TypedSupabaseCLient, id: string) => {
+  const { data, error, status } = await supabase
+    .from("users")
+    .select("*")
+    .eq("id", id)
+    .single();
+
+  return handleStatus(error, status, data) as Users | null;
+};
+
+export { getAllUsers, getUser };
