@@ -49,6 +49,7 @@ const ProductsSection = () => {
 
       return data;
     },
+    refetchOnWindowFocus: false,
     retry: true,
   });
 
