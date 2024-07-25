@@ -16,7 +16,7 @@ export function ImageSmallPreview({ image, setImage }: Props) {
     >
       <Image
         priority
-        src={image.url || "/not-found"}
+        src={image.url || "/not-available.jpg"}
         alt="Preview thumbnail"
         width={100}
         height={120}

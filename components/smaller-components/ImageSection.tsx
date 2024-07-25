@@ -9,7 +9,7 @@ interface Props {
 }
 
 export function ImageSection({ images }: Props) {
-  const [image, setImage] = useState(images[0].url || "/not-found");
+  const [image, setImage] = useState(images[0].url || "/not-available.jpg");
   return (
     <div className="grid gap-4 md:gap-8">
       <div className="grid items-start gap-3 md:grid-cols-5">
