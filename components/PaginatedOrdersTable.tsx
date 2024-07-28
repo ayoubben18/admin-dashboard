@@ -8,7 +8,7 @@ import {
   TableRow,
 } from "@/components//ui/table";
 import { getPaginatedDeliveries } from "@/db/service/delivery-service";
-import { useQuery } from "@tanstack/react-query";
+import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { ArrowLeftIcon, ArrowRightIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 import BigTableSkeleton from "./BigTableSkeleton";

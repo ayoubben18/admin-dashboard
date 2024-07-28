@@ -1,6 +1,10 @@
 "use client";
 import { getSortedProductsService } from "@/db/service/product-service";
-import { useQuery } from "@tanstack/react-query";
+import {
+  useQuery,
+  keepPreviousData,
+  useInfiniteQuery,
+} from "@tanstack/react-query";
 import { PlusCircleIcon } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
@@ -14,6 +18,7 @@ import {
   TableRow,
 } from "../ui/table";
 import ProductsSkeleton from "./ProductsSkeleton";
+import React from "react";
 
 export type FullProductType = {
   colors: string[] | null;
@@ -32,20 +37,15 @@ export type FullProductType = {
 
 const ProductsSection = () => {
   const elemenetsPerPage = 10;
-  const [page, setPage] = useState(1);
-  const [products, setProducts] = useState<FullProductType[]>([]);
-  const { data, isLoading, isFetching } = useQuery({
-    queryKey: ["products", page],
-    queryFn: () => getSortedProductsService(page, elemenetsPerPage),
-    refetchOnWindowFocus: false,
-    retry: true,
-  });
-
-  useMemo(() => {
-    if (data) {
-      setProducts((prev) => [...prev, ...data]);
-    }
-  }, [data]);
+  const { data, fetchNextPage, isFetching, isFetchingNextPage, hasNextPage } =
+    useInfiniteQuery({
+      queryKey: ["products"],
+      initialPageParam: 1,
+      queryFn: ({ pageParam }) =>
+        getSortedProductsService(pageParam, elemenetsPerPage),
+      getNextPageParam: (lastPage, pages) =>
+        lastPage.length === elemenetsPerPage ? pages.length + 1 : undefined,
+    });
 
   return (
     <div className="overflow-x-auto w-full flex flex-col gap-6">
@@ -61,18 +61,22 @@ const ProductsSection = () => {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {products.map((product, index) => (
-            <ProductRow product={product} key={index} />
+          {data?.pages.map((group, index) => (
+            <React.Fragment key={index}>
+              {group.map((product, index) => (
+                <ProductRow product={product} key={index} />
+              ))}
+            </React.Fragment>
           ))}
-          {(isLoading || isFetching) && (
+          {(isFetchingNextPage || isFetching) && (
             <ProductsSkeleton rowsPerPage={elemenetsPerPage} />
           )}
         </TableBody>
       </Table>
       <div className="flex justify-center gap-3">
         <Button
-          disabled={isLoading || data!.length < elemenetsPerPage}
-          onClick={() => setPage((prev) => prev + 1)}
+          disabled={!hasNextPage || isFetchingNextPage}
+          onClick={() => fetchNextPage()}
           className=" flex gap-2"
         >
           <PlusCircleIcon className=" w-4 h-4" /> Show more
